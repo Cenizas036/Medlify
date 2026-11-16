@@ -1,0 +1,4 @@
+
+/* safety: cards always keep natural size */
+.card,.card.picked,.card.sel{height:auto!important;min-height:0!important;padding:20px!important;align-items:stretch}
+.card .right{align-self:stretch}

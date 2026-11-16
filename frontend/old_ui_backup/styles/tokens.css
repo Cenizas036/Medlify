@@ -1,0 +1,60 @@
+/* ═══════════════════════════════════════════════════════════
+   Medlify — Design Tokens
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Palette ── */
+  --page-bg:        #CFCFCB;
+  --panel-bg:       #E6E6E1;
+  --surface:        #FFFFFF;
+  --surface-dark:   #1B1B1B;
+
+  --brand:          #0E9F85;
+  --brand-hover:    #0B8A73;
+  --brand-tint:     #D8F1EB;
+  --brand-tint-mid: rgba(14, 159, 133, 0.12);
+
+  --text-primary:   #151515;
+  --text-secondary: #6B6B66;
+  --text-on-dark:   #FFFFFF;
+  --text-on-dark-2: rgba(255,255,255,0.65);
+
+  --border:         rgba(0,0,0,0.08);
+  --border-strong:  rgba(0,0,0,0.14);
+
+  /* Stock colors */
+  --stock-in:       #1E9E55;
+  --stock-in-bg:    rgba(30,158,85,0.10);
+  --stock-low:      #E0961A;
+  --stock-low-bg:   rgba(224,150,26,0.10);
+  --stock-out:      #D64545;
+  --stock-out-bg:   rgba(214,69,69,0.10);
+
+  /* ── Radii ── */
+  --r-sm:  12px;
+  --r-md:  16px;
+  --r-lg:  24px;
+  --r-xl:  32px;
+  --r-pill:999px;
+
+  /* ── Spacing ── */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.12);
+  --shadow-lg: 0 30px 80px rgba(0,0,0,0.25);
+  --shadow-float: 0 4px 16px rgba(0,0,0,0.14);
+
+  /* ── Typography ── */
+  --font: 'Urbanist', 'Inter', system-ui, sans-serif;
+
+  /* ── Transitions ── */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur:  180ms;
+}
