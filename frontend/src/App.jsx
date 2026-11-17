@@ -341,7 +341,7 @@ export default function App() {
           <button className={view === 'orders' ? 'on' : ''} onClick={() => setView('orders')}>Orders</button>
           <button onClick={() => setCartOpen(true)}>Cart</button>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="acts">
           {auth ? <button className="btn" onClick={() => setView('profile')}><User size={16} />{auth.user.name.split(' ')[0]}</button> : <button className="btn" onClick={() => setView('auth')}><User size={16} />Log in</button>}
           <button className="btn" onClick={() => setView('orders')}>My orders</button>
           {auth ? <button className="btn" onClick={() => setView('owner')}>My pharmacy</button> : <button className="btn" onClick={() => setView('pharmacy-auth')}>Pharmacy login</button>}

@@ -202,3 +202,6 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;
 
 /* ===== Medicine thumbnails ===== */
 .mthumb{flex:none;border-radius:14px;display:grid;place-items:center;object-fit:cover;border:1px solid rgba(255,255,255,.9);box-shadow:0 4px 12px rgba(14,159,133,.12)}
+/* Header action buttons: wrap and shrink on phones so none run off-screen */
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:800px){.acts{width:100%;gap:6px}.acts .btn{padding:8px 12px;font-size:13px;white-space:nowrap}.acts .btn.pri{margin-left:auto}}
