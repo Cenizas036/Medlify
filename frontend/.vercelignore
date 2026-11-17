@@ -1,0 +1,4 @@
+node_modules
+dist
+old_ui_backup
+.env*
