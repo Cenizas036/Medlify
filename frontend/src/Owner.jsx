@@ -112,8 +112,7 @@ const NEXT = { placed: ['accepted', 'Accept order'], accepted: ['out_for_deliver
 function Restock({ m, call, onOrdered, delay }) {
   const [busy, setBusy] = useState(false), [err, setErr] = useState('')
   if (m.pending_restock) {
-    const left = Math.max(0, Math.ceil(delay - (Date.now() - new Date(m.pending_restock.created_at)) / 1000))
-    return <span className="badge ok" title={m.pending_restock.supplier}><Truck size={11} style={{ verticalAlign: -1 }} /> {m.pending_restock.quantity} arriving {left > 0 ? `in ~${left}s` : 'now'}</span>
+    return <span className="badge ok" title={m.pending_restock.supplier}><Truck size={11} style={{ verticalAlign: -1 }} /> {m.pending_restock.quantity} on the way</span>
   }
   const go = async () => { setBusy(true); setErr(''); try { await call('/api/owner/restock/' + m.medicine_id, 'POST', { quantity: 50 }); onOrdered() } catch (e) { setErr(e.message) } setBusy(false) }
   return <><button className="btn pri sm" disabled={busy} onClick={go}><Truck size={14} />{busy ? 'Ordering…' : 'Order 50 from supplier'}</button>{err && <small style={{ color: '#D64545' }}>{err}</small>}</>
@@ -265,8 +264,6 @@ export default function Owner({ auth }) {
   const refresh = () => Promise.all([load(), loadOrders()]).then(() => setTick(t => t + 1))
   useEffect(() => { refresh(); const t = setInterval(refresh, 10000); return () => clearInterval(t) }, [])
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(''), 6000); return () => clearTimeout(t) }, [toast])
-  // A ticking clock so "arriving in ~Ns" counts down between refreshes
-  const [, setNow] = useState(0); useEffect(() => { const t = setInterval(() => setNow(n => n + 1), 1000); return () => clearInterval(t) }, [])
 
   const inv = data?.inventory || [], low = data?.low_stock ?? 10, delay = data?.supplier_delay_s ?? 40
   // Out-of-stock first, then low stock, then the rest alphabetically
