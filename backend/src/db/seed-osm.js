@@ -7,13 +7,29 @@ out center;`;
 
 async function run() {
   console.log('Fetching pharmacies from OpenStreetMap...');
-  const res = await fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: 'data=' + encodeURIComponent(QUERY),
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Medlify-demo/1.0 (student project)', 'Accept': 'application/json' },
-  });
-  if (!res.ok) throw new Error('Overpass error ' + res.status);
-  const data = await res.json();
+  // The main Overpass server is often overloaded (502/504), so fall back to public mirrors
+  const ENDPOINTS = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.private.coffee/api/interpreter',
+  ];
+  let data;
+  for (const url of ENDPOINTS) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        body: 'data=' + encodeURIComponent(QUERY),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Medlify-demo/1.0 (student project)', 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(90000),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      data = await res.json();
+      break;
+    } catch (e) {
+      console.log(`  ${new URL(url).host} failed (${e.cause?.code || e.message})`);
+    }
+  }
+  if (!data) throw new Error('All Overpass servers failed.');
 
   const shops = data.elements
     .map((e) => ({
