@@ -56,4 +56,4 @@ Find medicines at nearby pharmacies. Pharmacies manage live stock and prices, an
 - **Frontend:** deploy `frontend/` on Vercel with `VITE_API_URL` set to the backend URL.
 
 ## Data
-Pharmacy names and locations come from OpenStreetMap (Bhubaneswar area). Stock, prices and licence numbers are demo data, and licence numbers are recorded but not verified against any register.
+Background photo from [Unsplash](https://unsplash.com/photos/1536147116438-62679a5e01f2). Pharmacy names and locations come from OpenStreetMap (Bhubaneswar area). Stock, prices and licence numbers are demo data, and licence numbers are recorded but not verified against any register.

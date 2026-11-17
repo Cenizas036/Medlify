@@ -205,3 +205,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;
 /* Header action buttons: wrap and shrink on phones so none run off-screen */
 .acts{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:800px){.acts{width:100%;gap:6px}.acts .btn{padding:8px 12px;font-size:13px;white-space:nowrap}.acts .btn.pri{margin-left:auto}}
+/* Greenery wallpaper around the page (photo: Unsplash). 4K on desktop, 1080px on phones */
+body{background:#0f3d24 url(/wall-4k.webp) center/cover no-repeat fixed!important}
+body::before,body::after{display:none}
+.sheet::before{background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(255,255,255,.8))!important}
+.sheet{box-shadow:0 30px 90px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.9)!important}
+@media(max-width:800px){body{background:#0f3d24 url(/wall-mobile.webp) center top/cover no-repeat scroll!important}}
