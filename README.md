@@ -38,6 +38,9 @@ Find medicines at nearby pharmacies. Pharmacies manage live stock and prices, an
 - Medicine search with prices from every nearby pharmacy, cart and orders
 - Customer accounts with saved delivery addresses
 - Pharmacy owner dashboard: add medicines, set quantity and price, changes go live instantly
+- Incoming customer orders, updated live: accept, send out for delivery, mark delivered or cancel (cancelling returns the stock). Sample customers keep placing orders about once a minute, so the demo is never idle.
+- Out-of-stock and low-stock medicines are highlighted, with one-click reordering from a supplier. In the demo a delivery arrives about 40 seconds later and is added to stock automatically.
+- Separate customer and pharmacist accounts: pharmacists only see their dashboard, and customers can't open any pharmacy tools (checked on the server too)
 
 ## Tech
 - **Frontend:** React + Vite, Leaflet maps, deployed on **Vercel**

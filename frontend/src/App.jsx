@@ -211,7 +211,6 @@ function Orders({ loggedIn, onLogin }) {
             <p className="sub">Deliver to: {o.delivery_address}</p>
             <div className="actions">
               {o.status === 'placed' && <button className="btn sm" onClick={() => confirm('Cancel this order?') && act('cancel')}>Cancel order</button>}
-              {!['delivered', 'cancelled'].includes(o.status) && <button className="btn sm" onClick={() => act('advance')}>Simulate next status (demo)</button>}
               <button className="btn sm" onClick={() => open(o.id)}>Refresh</button>
             </div>
           </div>
@@ -235,12 +234,15 @@ export default function App() {
 
   useEffect(() => save('medlify_cart', cart), [cart])
   useEffect(() => save('medlify_orders', orderIds), [orderIds])
-  const login = async (a, addr, owner) => {
-    setToken(a.token); setAuth(a); save('medlify_auth', a)
+  // Pharmacists only ever see their dashboard; customers never see pharmacy tools
+  const isPharm = auth?.user?.role === 'pharmacy'
+  const login = async (a, addr) => {
+    setToken(a.token); setAuth(a); save('medlify_auth', a); setCartOpen(false)
+    if (a.user.role === 'pharmacy') return setView('owner')
     if (addr && addr.length >= 10) {
       try { await api('/api/me/addresses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ label: 'Home', is_self: true, recipient_name: a.user.name, recipient_phone: a.user.phone, address: addr, is_default: true }) }); await loadAddrs() } catch {}
     }
-    setView(owner ? 'owner' : addr === null || addr.length >= 10 ? 'explore' : 'profile')
+    setView(addr === null || addr.length >= 10 ? 'explore' : 'profile')
   }
   const updateUser = u => setAuth(a => { const n = { ...a, user: u }; save('medlify_auth', n); return n })
   const logout = () => { setToken(null); setAuth(null); localStorage.removeItem('medlify_auth'); setView('explore') }
@@ -336,21 +338,33 @@ export default function App() {
     <div className="sheet">
       <div className="nav">
         <div className="logo"><i><Cross size={18} /></i>Medlify</div>
-        <div className="links">
-          <button className={view === 'explore' ? 'on' : ''} onClick={() => setView('explore')}>Explore</button>
-          <button className={view === 'orders' ? 'on' : ''} onClick={() => setView('orders')}>Orders</button>
-          <button onClick={() => setCartOpen(true)}>Cart</button>
-        </div>
-        <div className="acts">
-          {auth ? <button className="btn" onClick={() => setView('profile')}><User size={16} />{auth.user.name.split(' ')[0]}</button> : <button className="btn" onClick={() => setView('auth')}><User size={16} />Log in</button>}
-          <button className="btn" onClick={() => setView('orders')}>My orders</button>
-          {auth ? <button className="btn" onClick={() => setView('owner')}>My pharmacy</button> : <button className="btn" onClick={() => setView('pharmacy-auth')}>Pharmacy login</button>}
-          {auth && <button className="btn" onClick={logout}>Log out</button>}
-          <button className="btn pri" onClick={() => setCartOpen(true)}><ShoppingCart size={16} />Cart ({cartCount})</button>
-        </div>
+        {isPharm ? (
+          <>
+            <div className="links"><button className="on">Pharmacy dashboard</button></div>
+            <div className="acts">
+              <span className="btn" style={{ cursor: 'default' }}><User size={16} />{auth.user.name.split(' ')[0]}</span>
+              <button className="btn" onClick={logout}>Log out</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="links">
+              <button className={view === 'explore' ? 'on' : ''} onClick={() => setView('explore')}>Explore</button>
+              <button className={view === 'orders' ? 'on' : ''} onClick={() => setView('orders')}>Orders</button>
+              <button onClick={() => setCartOpen(true)}>Cart</button>
+            </div>
+            <div className="acts">
+              {auth ? <button className="btn" onClick={() => setView('profile')}><User size={16} />{auth.user.name.split(' ')[0]}</button> : <button className="btn" onClick={() => setView('auth')}><User size={16} />Log in</button>}
+              <button className="btn" onClick={() => setView('orders')}>My orders</button>
+              {!auth && <button className="btn" onClick={() => setView('pharmacy-auth')}>Pharmacy login</button>}
+              {auth && <button className="btn" onClick={logout}>Log out</button>}
+              <button className="btn pri" onClick={() => setCartOpen(true)}><ShoppingCart size={16} />Cart ({cartCount})</button>
+            </div>
+          </>
+        )}
       </div>
 
-      {view === 'pharmacy-auth' ? <PharmacyAuth onAuth={d => login(d, null, true)} onBack={() => setView('explore')} /> : view === 'auth' ? <AuthPage onAuth={login} onBack={() => { setLanding('explore'); setView('explore') }} pharmacy={false} setPharmacy={() => setView('pharmacy-auth')} /> : view === 'owner' && auth ? <Owner auth={auth} onBack={() => setView('profile')} /> : view === 'profile' && auth ? <Profile auth={auth} onOwner={() => setView('owner')} addrs={addrs} onSaveAddr={saveAddr} onDelAddr={delAddr} onSearch={runSearch} onOrders={() => setView('orders')} onLogout={logout} /> : view === 'orders' ? <Orders loggedIn={!!auth} onLogin={() => setView('auth')} /> : (
+      {isPharm ? <Owner auth={auth} /> : view === 'pharmacy-auth' && !auth ? <PharmacyAuth onAuth={d => login(d, null)} onBack={() => setView('explore')} /> : view === 'auth' ? <AuthPage onAuth={login} onBack={() => { setLanding('explore'); setView('explore') }} pharmacy={false} setPharmacy={() => setView('pharmacy-auth')} /> : view === 'profile' && auth ? <Profile auth={auth} addrs={addrs} onSaveAddr={saveAddr} onDelAddr={delAddr} onSearch={runSearch} onOrders={() => setView('orders')} onLogout={logout} /> : view === 'orders' ? <Orders loggedIn={!!auth} onLogin={() => setView('auth')} /> : (
         <>
           <h1>{query ? `${results.length} pharmacies stock “${query}”` : `${results.length} Pharmacies in Bhubaneswar`}</h1>
           <p className="sub">Find medicines from pharmacies near you.</p>

@@ -27,6 +27,8 @@ router.post('/register', async (req, res) => {
   const phone = String(req.body.phone || '').replace(/\s/g, '');
   const password = String(req.body.password || '');
   const address = String(req.body.address || '').trim();
+  // Accounts created from the pharmacy sign-up page are pharmacist accounts; everything else is a customer
+  const role = req.body.account === 'pharmacy' ? 'pharmacy' : 'customer';
   if (name.length < 2) return res.status(400).json({ error: 'Enter your name.' });
   if (!phoneOk(phone)) return res.status(400).json({ error: 'Enter a valid 10-digit mobile number.' });
   if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
@@ -36,8 +38,8 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ error: 'An account with this number already exists.' });
     const hash = await bcrypt.hash(password, 10);
     const r = await pool.query(
-      `INSERT INTO users (name, phone, role, password_hash, address) VALUES ($1,$2,'customer',$3,$4) RETURNING id,name,phone,role,address`,
-      [name, phone, hash, address || null]);
+      `INSERT INTO users (name, phone, role, password_hash, address) VALUES ($1,$2,$5,$3,$4) RETURNING id,name,phone,role,address`,
+      [name, phone, hash, address || null, role]);
     res.status(201).json({ token: sign(r.rows[0]), user: pub(r.rows[0]) });
   } catch (e) { console.error(e); res.status(500).json({ error: 'Internal server error.' }); }
 });
@@ -60,5 +62,17 @@ router.get('/me', requireAuth, async (req, res) => {
   res.json(pub(r.rows[0]));
 });
 
+// Only pharmacist accounts may use the pharmacy dashboard API. The role is read from the
+// database on every request, so it can't be faked by editing the token or local storage.
+async function requirePharmacist(req, res, next) {
+  try {
+    const r = await pool.query('SELECT role FROM users WHERE id=$1', [req.userId]);
+    if (!r.rowCount) return res.status(401).json({ error: 'Account not found.' });
+    if (r.rows[0].role !== 'pharmacy') return res.status(403).json({ error: 'Only pharmacy accounts can use the pharmacy dashboard.' });
+    next();
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Internal server error.' }); }
+}
+
 module.exports = router;
 module.exports.requireAuth = requireAuth;
+module.exports.requirePharmacist = requirePharmacist;

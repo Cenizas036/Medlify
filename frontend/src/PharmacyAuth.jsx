@@ -17,9 +17,10 @@ export default function PharmacyAuth({ onAuth, onBack }) {
     if (why) return setErr(why)
     setBusy(true); setErr('')
     try {
-      const r = await fetch(`${API}/api/auth/${mode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(f) })
+      const r = await fetch(`${API}/api/auth/${mode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...f, account: 'pharmacy' }) })
       const d = await r.json().catch(() => ({}))
       if (!r.ok) throw new Error(d.error || 'Request failed')
+      if (d.user?.role !== 'pharmacy') throw new Error('This is a customer account. Use the customer Log in instead, or register a separate pharmacy account.')
       onAuth(d)
     } catch (e) { setErr(e.message === 'Failed to fetch' ? 'Cannot reach the server. Is the backend running?' : e.message) }
     setBusy(false)

@@ -211,3 +211,22 @@ body::before,body::after{display:none}
 .sheet::before{background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(255,255,255,.8))!important}
 .sheet{box-shadow:0 30px 90px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.9)!important}
 @media(max-width:800px){body{background:#0f3d24 url(/wall-mobile.webp) center top/cover no-repeat scroll!important}}
+/* Pharmacist dashboard */
+.own-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.own-stats>div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:2px}
+.own-stats small{color:var(--muted);font-size:12px;font-weight:600}.own-stats b{font-size:22px}
+.own-stats>div.bad{background:#FDECEC;border-color:#F5C2C2}.own-stats>div.bad b{color:var(--bad)}
+.own-alert{background:#FFF7F5;border:1px solid #F5C2C2;border-radius:18px;padding:14px 16px;margin-top:6px}
+.own-alert h3{display:flex;align-items:center;gap:8px;color:var(--bad);margin:0 0 10px;font-size:15px}
+.own-ok{display:flex;align-items:center;gap:8px;background:#E8F7EF;color:var(--ok);border-radius:14px;padding:10px 14px;font-weight:600;font-size:14px;margin-top:6px}
+.dx-med.own-out{background:#FDECEC!important;border:1px solid #F5C2C2;box-shadow:inset 4px 0 0 var(--bad)}
+.dx-med.own-low{background:#FFF6E5!important;border:1px solid #F3D9A4;box-shadow:inset 4px 0 0 var(--low)}
+.own-order{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.own-order.own-new{border-color:#F3D9A4;box-shadow:inset 4px 0 0 var(--low)}
+.own-order.own-fresh{animation:own-pop 1.2s ease-out}
+@keyframes own-pop{0%{transform:scale(.98);background:#FFF1CC}100%{transform:none;background:#fff}}
+.own-order-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.own-items{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 6px}.own-items span{background:var(--field);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.own-toast{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:3000;background:var(--text);color:#fff;border-radius:999px;padding:10px 18px;font-weight:600;display:flex;gap:8px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+@media(max-width:800px){.own-stats{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){.own-order.own-fresh{animation:none}}

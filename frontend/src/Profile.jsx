@@ -5,7 +5,7 @@ import MedThumb from './MedThumb.jsx'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
-export default function Profile({ onOwner, auth, addrs, onSaveAddr, onDelAddr, onSearch, onOrders, onLogout }) {
+export default function Profile({ auth, addrs, onSaveAddr, onDelAddr, onSearch, onOrders, onLogout }) {
   const { token, user } = auth
   const [cab, setCab] = useState(null), [cabErr, setCabErr] = useState('')
   const call = (path, method = 'GET') => fetch(API + path, { method, headers: { Authorization: 'Bearer ' + token } })
@@ -24,7 +24,6 @@ export default function Profile({ onOwner, auth, addrs, onSaveAddr, onDelAddr, o
       <p className="sub">{user.name} · {user.phone}</p>
       <div style={{ display: 'flex', gap: 8, margin: '12px 0 4px' }}>
         <button className="btn sm" onClick={onOrders}>View my orders</button>
-        <button className="btn sm" onClick={onOwner}>Manage my pharmacy</button>
         <button className="btn sm" onClick={onLogout}>Log out</button>
       </div>
       <div className="dx-cab">

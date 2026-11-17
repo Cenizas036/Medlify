@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express');
 const pool    = require('../db/pool');
+const { requireAuth } = require('./auth');
 const router  = express.Router();
 
 function validPhone(p) {
@@ -45,19 +46,20 @@ router.get('/', async (req, res) => {
 /**
  * GET /api/orders/:id — full order detail
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.status(400).json({ error: 'Invalid order id.' });
 
   try {
+    // Only the customer who placed the order, or the pharmacy that received it, may see it
     const orderQ = await pool.query(
       `SELECT o.id, o.status, o.delivery_address, o.total, o.created_at,
               o.customer_name, o.customer_phone,
               p.id AS pharmacy_id, p.name AS pharmacy_name, p.phone AS pharmacy_phone
        FROM orders o
        JOIN pharmacies p ON p.id = o.pharmacy_id
-       WHERE o.id = $1`,
-      [id]
+       WHERE o.id = $1 AND (o.user_id = $2 OR p.owner_user_id = $2)`,
+      [id, req.userId]
     );
     if (orderQ.rows.length === 0) return res.status(404).json({ error: 'Order not found.' });
 
@@ -168,38 +170,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-/**
- * POST /api/orders/:id/advance — DEMO ONLY
- */
-router.post('/:id/advance', async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) return res.status(400).json({ error: 'Invalid order id.' });
-
-  const steps = ['placed', 'accepted', 'out_for_delivery', 'delivered'];
-
-  try {
-    const r = await pool.query('SELECT status FROM orders WHERE id=$1', [id]);
-    if (r.rows.length === 0) return res.status(404).json({ error: 'Order not found.' });
-
-    const cur = r.rows[0].status;
-    if (cur === 'cancelled' || cur === 'delivered') {
-      return res.status(400).json({ error: `Cannot advance from status: ${cur}` });
-    }
-
-    const nextIdx = steps.indexOf(cur) + 1;
-    const next    = steps[Math.min(nextIdx, steps.length - 1)];
-    await pool.query('UPDATE orders SET status=$1 WHERE id=$2', [next, id]);
-    res.json({ id, previous_status: cur, status: next });
-  } catch (err) {
-    console.error('Advance order error:', err);
-    res.status(500).json({ error: 'Internal server error.' });
-  }
-});
+// Order status (accepted → out for delivery → delivered) is now set by the pharmacy
+// from its dashboard: see POST /api/owner/orders/:id/status.
 
 /**
- * POST /api/orders/:id/cancel — only if status is 'placed'; restores inventory
+ * POST /api/orders/:id/cancel — the customer's own order, only while 'placed'; restores inventory
  */
-router.post('/:id/cancel', async (req, res) => {
+router.post('/:id/cancel', requireAuth, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.status(400).json({ error: 'Invalid order id.' });
 
@@ -208,7 +185,7 @@ router.post('/:id/cancel', async (req, res) => {
     await client.query('BEGIN');
 
     const r = await client.query(
-      'SELECT status, pharmacy_id FROM orders WHERE id=$1 FOR UPDATE', [id]
+      'SELECT status, pharmacy_id FROM orders WHERE id=$1 AND user_id=$2 FOR UPDATE', [id, req.userId]
     );
     if (r.rows.length === 0) {
       await client.query('ROLLBACK');
